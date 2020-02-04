@@ -25,4 +25,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'activerecord', '~> 4.2.10'
   s.add_development_dependency 'rails', '~> 4.2.10'
   s.add_development_dependency 'rspec-rails'
+
+  # Disallow pushing to rubygems.org
+  s.metadata['allowed_push_host'] = 'https://rubygems.pkg.github.com/jobseekerltd'
 end
