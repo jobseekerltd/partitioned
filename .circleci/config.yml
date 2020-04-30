@@ -23,29 +23,18 @@ commands:
           command: gem build *.gemspec
 
 jobs:
-  ruby_2_3:
-    docker:
-      - image: circleci/ruby:2.3
-    steps:
-      - rspec
-  ruby_2_4:
-    docker:
-      - image: jobseeker/docker-library:ruby-2.4-ci-node-bionic
-        auth:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
-    steps:
-      - rspec
   ruby_2_5:
     docker:
       - image: circleci/ruby:2.5
     steps:
       - rspec
+
   lint:
     executor: rubocop
     steps:
       - checkout
       - run: pronto run -c origin/master --exit-code
+
   publish_gem:
     docker:
       - image: jobseeker/docker-library:ruby-gem-publisher
@@ -66,8 +55,6 @@ workflows:
   version: 2
   rspecs:
     jobs:
-      - ruby_2_3
-      - ruby_2_4
       - ruby_2_5
       - lint:
           filters:
@@ -76,8 +63,6 @@ workflows:
       - publish_gem:
           context: org-global
           requires:
-            - ruby_2_3
-            - ruby_2_4
             - ruby_2_5
           filters:
             branches: { only: master }
