@@ -22,7 +22,6 @@ commands:
           name: Initialise database
           command: |
             cd spec/dummy
-            bundle exec rake db:create
             bundle exec rake db:migrate
             bundle exec rake db:test:clone_structure
       - run:
