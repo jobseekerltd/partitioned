@@ -13,6 +13,16 @@ commands:
     steps:
       - checkout
       - run:
+          name: Wait for DB
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+      - run:
+          name: Initialise database
+          command: |
+            cd spec/dummy
+            bundle exec rake db:create
+            bundle exec rake db:migrate
+            bundle exec rake db:test:clone_structure
+      - run:
           name: Bundle dependencies
           command: bundle
       - run:
@@ -26,6 +36,11 @@ jobs:
   ruby_2_5:
     docker:
       - image: circleci/ruby:2.5
+      - image: circleci/postgres:9.5-alpine
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: part_production
+          POSTGRES_PASSWORD: postgres
     steps:
       - rspec
 
