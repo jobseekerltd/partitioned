@@ -72,6 +72,7 @@ workflows:
     jobs:
       - ruby_2_5
       - lint:
+          context: org-global
           filters:
             branches:
               ignore: master
