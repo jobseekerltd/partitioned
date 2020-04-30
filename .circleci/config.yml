@@ -16,15 +16,15 @@ commands:
           name: Wait for DB
           command: dockerize -wait tcp://localhost:5432 -timeout 1m
       - run:
+          name: Bundle dependencies
+          command: bundle install --path vendor/bundle --frozen
+      - run:
           name: Initialise database
           command: |
             cd spec/dummy
             bundle exec rake db:create
             bundle exec rake db:migrate
             bundle exec rake db:test:clone_structure
-      - run:
-          name: Bundle dependencies
-          command: bundle
       - run:
           name: Run tests
           command: bundle exec rspec
