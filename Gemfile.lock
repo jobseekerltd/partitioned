@@ -12,7 +12,7 @@ GIT
 PATH
   remote: .
   specs:
-    partitioned (2.1.0)
+    partitioned (3.0.0.jora.pre.pre1)
       activerecord (~> 4.2.10)
       activerecord-redshift-adapter
       bulk_data_methods
