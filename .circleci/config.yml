@@ -20,10 +20,7 @@ commands:
           command: bundle install --path vendor/bundle --frozen
       - run:
           name: Initialise database
-          command: |
-            cd spec/dummy
-            bundle exec rake db:migrate
-            bundle exec rake db:test:clone_structure
+          command: psql -U postgres -h localhost < support/docker-entrypoint-initdb.d/migrations.sql
       - run:
           name: Run tests
           command: bundle exec rspec

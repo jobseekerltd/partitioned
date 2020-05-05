@@ -1,5 +1,17 @@
 # Partitioned
 
+Running tests:
+
+```sh
+cd docker
+docker-compose up -d
+
+# wait a bit and then
+bundle exec rspec
+```
+
+<!--
+
 Partitioned adds assistance to ActiveRecord for manipulating (reading,
 creating, updating) an activerecord model that represents data that
 may be in one of many database tables (determined by the Models data).
@@ -208,3 +220,5 @@ update employees_partitions.p1 set name = 'Not Keith' where id = 1;
 5. Create new Pull Request
 
 Copyright 2010-2013 fiksu.com, inc, all rights reserved
+
+-->
