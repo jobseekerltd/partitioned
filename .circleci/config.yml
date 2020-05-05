@@ -13,6 +13,9 @@ commands:
     steps:
       - checkout
       - run:
+          name: Install psql
+          command: sudo apt-get install -y postgresql-client
+      - run:
           name: Wait for DB
           command: dockerize -wait tcp://localhost:5432 -timeout 1m
       - run:
@@ -20,7 +23,9 @@ commands:
           command: bundle install --path vendor/bundle --frozen
       - run:
           name: Initialise database
-          command: psql -U postgres -h localhost < support/docker-entrypoint-initdb.d/migrations.sql
+          command: |
+            createdb -U postgres -h localhost part_test
+            psql -U postgres -h localhost -d part_test < support/docker-entrypoint-initdb.d/migrations.sql
       - run:
           name: Run tests
           command: bundle exec rspec
