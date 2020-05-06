@@ -1,19 +1,8 @@
-GIT
-  remote: git://github.com/arp/activerecord-redshift-adapter.git
-  revision: 734e34e5ea88c040e665144f579ecb0664d75efc
-  branch: rails4-compatibility
-  specs:
-    activerecord-redshift-adapter (0.9.12)
-      activerecord (>= 3.0.0)
-      activesupport (>= 3.0.0)
-      arel (>= 3.0.0)
-      pg
-
 PATH
   remote: ..
   specs:
     partitioned (3.0.0.jora.pre.pre1)
-      activerecord (~> 4.2.10)
+      activerecord (>= 4.2.10)
       activerecord-redshift-adapter
       bulk_data_methods
       pg
@@ -50,6 +39,11 @@ GEM
       activemodel (= 4.2.11.1)
       activesupport (= 4.2.11.1)
       arel (~> 6.0)
+    activerecord-redshift-adapter (0.9.12)
+      activerecord (>= 3.0.0)
+      activesupport (>= 3.0.0)
+      arel (>= 3.0.0)
+      pg
     activesupport (4.2.11.1)
       i18n (~> 0.7)
       minitest (~> 5.1)
@@ -147,14 +141,13 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activerecord-redshift-adapter!
   appraisal
-  bulk_data_methods (< 1.2)
-  jquery-rails (< 3.2)
+  bulk_data_methods (~> 1.1.0)
+  jquery-rails (~> 3.1.0)
   partitioned!
-  pg (< 0.19)
+  pg (~> 0.18.0)
   rails (~> 4.2.10)
-  rspec-rails (< 3.5)
+  rspec-rails (~> 3.4.0)
 
 BUNDLED WITH
    1.17.3
