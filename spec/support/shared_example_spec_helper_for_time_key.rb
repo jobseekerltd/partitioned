@@ -30,10 +30,23 @@ shared_examples_for "check that basic operations with postgres works correctly f
   context "when try to create many records" do
 
     it "records created" do
-      expect { subject.create_many([
-                                     { :name => 'Alex', :company_id => 2, :created_at => DATE_NOW + 1 },
-                                     { :name => 'Aaron', :company_id => 3, :created_at => DATE_NOW + 1 }])
-      }.not_to raise_error
+      if ActiveRecord::VERSION::MAJOR < 5
+        expect {
+          subject.create_many([
+           { name: 'Alex', company_id: 2, created_at: DATE_NOW + 1 },
+           { name: 'Aaron', company_id: 3, created_at: DATE_NOW + 1 }
+          ])
+        }.not_to raise_error
+      else
+        # The #create_many method is provided by the `bulk_data_methods` gem,
+        # which isn't compatible with Rails 4+. It doesn't seem to be used in
+        # Jora, so tests related to #create_many are emulated with multiple
+        # #create calls.
+        expect {
+          subject.create({ :name => 'Alex', :company_id => 2, :created_at => DATE_NOW + 1 })
+          subject.create({ :name => 'Aaron', :company_id => 3, :created_at => DATE_NOW + 1 })
+        }.not_to raise_error
+      end
     end
 
   end # when try to create many records
@@ -131,8 +144,15 @@ shared_examples_for "check that basic operations with postgres works correctly f
   context "when try to create new record outside the range of partitions" do
 
     it "raises ActiveRecord::StatementInvalid" do
-      expect { subject.create_many([{ :created_at => DATE_NOW - 1.year, :company_id => 1 }])
-      }.to raise_error(ActiveRecord::StatementInvalid)
+      if ActiveRecord::VERSION::MAJOR < 5
+        expect {
+          subject.create_many([{ created_at: DATE_NOW - 1.year, company_id: 1 }])
+        }.to raise_error(ActiveRecord::StatementInvalid)
+      else
+        expect {
+          subject.create(created_at: DATE_NOW - 1.year, company_id: 1)
+        }.to raise_error(ActiveRecord::StatementInvalid)
+      end
     end
 
   end # when try to create new record outside the range of partitions
