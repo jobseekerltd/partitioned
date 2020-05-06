@@ -2,11 +2,11 @@
 
 source "https://rubygems.org"
 
-gem "activerecord-redshift-adapter", git: "https://github.com/arp/activerecord-redshift-adapter", branch: "rails4-compatibility"
 gem "rails", "~> 4.2.10"
 gem "pg", "< 0.19"
 gem "bulk_data_methods", "< 1.2"
 gem "jquery-rails", "< 3.2"
 gem "rspec-rails", "< 3.5"
+gem "activerecord-redshift-adapter", github: "arp/activerecord-redshift-adapter", branch: "rails4-compatibility"
 
 gemspec path: "../"

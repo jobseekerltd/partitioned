@@ -27,6 +27,13 @@ For more information on how partitioned works, see:
 
 ## Developer setup
 
+Install:
+
+```sh
+bundle install
+bundle exec appraisal install
+```
+
 Running tests:
 
 ```sh
