@@ -6,6 +6,7 @@ common: &common
   template: template0
   pool: 5
   timeout: 5000
+  port: <%= ENV['POSTGRES_PORT'] || '34199' %>
 
 local: &local
   host: 127.0.0.1

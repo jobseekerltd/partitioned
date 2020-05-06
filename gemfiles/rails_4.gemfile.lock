@@ -10,7 +10,7 @@ GIT
       pg
 
 PATH
-  remote: .
+  remote: ..
   specs:
     partitioned (3.0.0.jora.pre.pre1)
       activerecord (~> 4.2.10)
@@ -149,10 +149,12 @@ PLATFORMS
 DEPENDENCIES
   activerecord-redshift-adapter!
   appraisal
-  jquery-rails
+  bulk_data_methods (< 1.2)
+  jquery-rails (< 3.2)
   partitioned!
-  rails
-  rspec-rails
+  pg (< 0.19)
+  rails (~> 4.2.10)
+  rspec-rails (< 3.5)
 
 BUNDLED WITH
    1.17.3
