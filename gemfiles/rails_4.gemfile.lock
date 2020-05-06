@@ -1,5 +1,5 @@
 GIT
-  remote: https://github.com/arp/activerecord-redshift-adapter
+  remote: git://github.com/arp/activerecord-redshift-adapter.git
   revision: 734e34e5ea88c040e665144f579ecb0664d75efc
   branch: rails4-compatibility
   specs:

@@ -9,7 +9,7 @@ appraise 'rails-4' do
 end
 
 appraise 'rails-5' do
-  gem 'rails', '~> 4.2.10'
+  gem 'rails', '~> 5.0'
   gem 'pg'
   gem 'bulk_data_methods'
   gem 'jquery-rails', '>= 3.2'
