@@ -162,9 +162,16 @@ module Partitioned
       # Create a single child table.
       #
       def create_partition_table(*partition_key_values)
+        inherits =
+          if ActiveRecord::VERSION::MAJOR < 5
+            'INHERITS'
+          else
+            '() INHERITS'
+          end
+
         create_table(configurator.table_name(*partition_key_values), {
                        :id => false,
-                       :options => "INHERITS (#{configurator.parent_table_name(*partition_key_values)})"
+                       :options => "#{inherits} (#{configurator.parent_table_name(*partition_key_values)})"
                      }) do |t|
         end
         add_check_constraint(*partition_key_values)
