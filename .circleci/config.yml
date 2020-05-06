@@ -51,7 +51,7 @@ jobs:
 
   rails5_rspec:
     docker:
-      - image: circleci/ruby:2.6
+      - image: circleci/ruby:2.4
         environment:
           POSTGRES_PORT: 5432
       - image: circleci/postgres:9.5-alpine
