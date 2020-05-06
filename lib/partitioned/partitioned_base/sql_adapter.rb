@@ -161,7 +161,7 @@ module Partitioned
       #
       # Create a single child table.
       #
-      def create_partition_table(*partition_key_values)
+      def create_partition_table(*partition_key_values) # rubocop:disable Layout/MethodLength
         inherits =
           if ActiveRecord::VERSION::MAJOR < 5
             'INHERITS'
@@ -169,15 +169,16 @@ module Partitioned
             '() INHERITS'
           end
 
-        child_table = configurator.table_name(*partition_key_values),
+        child_table = configurator.table_name(*partition_key_values)
         parent_table = configurator.parent_table_name(*partition_key_values)
 
         create_table(
           child_table,
-           id: false,
-           options: "#{inherits} (#{parent_table})"
-         ) do |t|
+          id: false,
+          options: "#{inherits} (#{parent_table})"
+        ) do |t|
         end
+
         add_check_constraint(*partition_key_values)
       end
 
