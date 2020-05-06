@@ -22,7 +22,6 @@ commands:
           name: Bundle dependencies
           command: |
             bundle install --path vendor/bundle/$BUNDLE_GEMFILE --frozen
-            bundle exec appraisal install
       - run:
           name: Initialise database
           command: |
