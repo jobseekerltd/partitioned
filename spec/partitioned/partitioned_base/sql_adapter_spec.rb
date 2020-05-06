@@ -175,7 +175,11 @@ module Partitioned
             SELECT count(*) FROM pg_class
             where relname = 'p1_id_udx'
           SQL
-          expect(result.values).to eq [["1"]]
+          if ActiveRecord::VERSION::MAJOR < 5
+            expect(result.values).to eq [["1"]]
+          else
+            expect(result.values).to eq [[1]]
+          end
         end
       end # add_partition_table_index
 

@@ -4,6 +4,8 @@
 require "bulk_data_methods"
 
 module Partitioned
+  ACTIVERECORD_VERSION = [ActiveRecord::VERSION::MAJOR, ActiveRecord::VERSION::MINOR].join('.')
+
   #
   # Used by PartitionedBase class methods that must be overridden.
   #
@@ -165,7 +167,16 @@ module Partitioned
     # @return [Hash] the scoping
     def self.from_partition(*partition_key_values)
       table_alias_name = partition_table_alias_name(*partition_key_values)
-      return ActiveRecord::Relation.new(self, self.arel_table_from_key_values(partition_key_values, table_alias_name))
+      table = arel_table_from_key_values(partition_key_values, table_alias_name)
+
+      if ['5.0', '5.1'].include?(ACTIVERECORD_VERSION)
+        # https://github.com/rails/rails/blob/5-0-stable/activerecord/lib/active_record/relation.rb#L25
+        ActiveRecord::Relation.new(self, table, self.predicate_builder)
+      else
+        # https://github.com/rails/rails/blob/4-2-stable/activerecord/lib/active_record/relation.rb#L25
+        # https://github.com/rails/rails/blob/5-2-stable/activerecord/lib/active_record/relation.rb#L25
+        ActiveRecord::Relation.new(self, table)
+      end
     end
 
     #
