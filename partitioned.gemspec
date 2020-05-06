@@ -23,8 +23,9 @@ Gem::Specification.new do |s|
   s.add_dependency 'bulk_data_methods'
   s.add_dependency 'activerecord-redshift-adapter'
   s.add_dependency 'activerecord', '~> 4.2.10'
-  s.add_development_dependency 'rails', '~> 4.2.10'
+  s.add_development_dependency 'rails'
   s.add_development_dependency 'rspec-rails'
+  s.add_development_dependency 'appraisal'
 
   # Disallow pushing to rubygems.org
   s.metadata['allowed_push_host'] = 'https://rubygems.pkg.github.com/jobseekerltd'

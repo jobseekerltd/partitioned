@@ -20,15 +20,20 @@ commands:
           command: dockerize -wait tcp://localhost:5432 -timeout 1m
       - run:
           name: Bundle dependencies
-          command: bundle install --path vendor/bundle --frozen
+          command: |
+            bundle install --path vendor/bundle --frozen
+            bundle exec appraisal install
       - run:
           name: Initialise database
           command: |
             createdb -U postgres -h localhost part_test
             psql -U postgres -h localhost -d part_test < support/docker-entrypoint-initdb.d/migrations.sql
       - run:
-          name: Run tests
-          command: bundle exec rspec
+          name: Run tests (rails-4)
+          command: bundle exec appraisal rails-4 rspec
+      - run:
+          name: Run tests (rails-5)
+          command: bundle exec appraisal rails-5 rspec
       - run:
           name: Simulate building the gem
           command: gem build *.gemspec
@@ -36,7 +41,9 @@ commands:
 jobs:
   ruby_2_4:
     docker:
-      - image: circleci/ruby:2.4
+      - image: circleci/ruby:2.5
+        environment:
+          POSTGRES_PORT: 5432
       - image: circleci/postgres:9.5-alpine
         environment:
           POSTGRES_USER: postgres
