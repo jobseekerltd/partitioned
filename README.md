@@ -30,8 +30,9 @@ For more information on how partitioned works, see:
 Install:
 
 ```sh
+# Ruby 2.5+ required
+rbenv local 2.6.5
 bundle install
-bundle exec appraisal install
 ```
 
 Running tests:
@@ -44,3 +45,11 @@ docker-compose up -d
 bundle exec rspec
 ```
 
+Running tests in older rails versions:
+
+```sh
+# Rails 4 isn't compatible with Ruby 2.5+
+rbenv local 2.4.10
+BUNDLE_GEMFILE=Gemfile-rails4 bundle install
+BUNDLE_GEMFILE=Gemfile-rails4 bundle exec rspec
+```
