@@ -114,7 +114,7 @@ module Partitioned
     
     def self.arel_table_from_key_values(partition_key_values, as_what = nil) # rubocop:disable Metrics/MethodLength
       @arel_tables ||= {}
-      new_arel_table = @arel_tables[[partition_key_values, as]]
+      new_arel_table = @arel_tables[[partition_key_values, as_what]]
       
       unless new_arel_table
         arel_engine_hash =
@@ -125,7 +125,7 @@ module Partitioned
           end
 
         new_arel_table = Arel::Table.new(self.partition_table_name(*partition_key_values), arel_engine_hash)
-        @arel_tables[[partition_key_values, as]] = new_arel_table
+        @arel_tables[[partition_key_values, as_what]] = new_arel_table
       end
 
       return new_arel_table
