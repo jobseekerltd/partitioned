@@ -14,8 +14,8 @@ Dummy::Application.configure do
 
   # Configure static asset server for tests with Cache-Control for performance.
   if Rails::VERSION::MAJOR < 4
-    config.serve_static_files  = true
-    config.static_cache_control = "public, max-age=3600"
+    config.serve_static_files = true
+    config.static_cache_control = 'public, max-age=3600'
   else
     config.public_file_server.enabled = true
     config.public_file_server.headers = {

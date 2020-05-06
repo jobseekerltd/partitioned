@@ -176,7 +176,7 @@ module Partitioned
             where relname = 'p1_id_udx'
           SQL
           if ActiveRecord::VERSION::MAJOR < 5
-            expect(result.values).to eq [["1"]]
+            expect(result.values).to eq [['1']]
           else
             expect(result.values).to eq [[1]]
           end

@@ -4,7 +4,10 @@
 require "bulk_data_methods"
 
 module Partitioned
-  ACTIVERECORD_VERSION = [ActiveRecord::VERSION::MAJOR, ActiveRecord::VERSION::MINOR].join('.')
+  ACTIVERECORD_VERSION = [
+    ActiveRecord::VERSION::MAJOR,
+    ActiveRecord::VERSION::MINOR
+  ].join('.')
 
   #
   # Used by PartitionedBase class methods that must be overridden.
@@ -109,17 +112,16 @@ module Partitioned
       return @sql_adapter
     end
     
-    def self.arel_table_from_key_values(partition_key_values, as = nil) # rubocop:disable Layout/MethodLength
+    def self.arel_table_from_key_values(partition_key_values, as_what = nil) # rubocop:disable Metrics/MethodLength
       @arel_tables ||= {}
       new_arel_table = @arel_tables[[partition_key_values, as]]
       
       unless new_arel_table
-
         arel_engine_hash =
           if ActiveRecord::VERSION::MAJOR < 5
-            { as: as, engine: self.arel_engine }
+            { as: as_what, engine: arel_engine }
           else
-            { as: as }
+            { as: as_what }
           end
 
         new_arel_table = Arel::Table.new(self.partition_table_name(*partition_key_values), arel_engine_hash)
@@ -171,7 +173,7 @@ module Partitioned
 
       if ['5.0', '5.1'].include?(ACTIVERECORD_VERSION)
         # https://github.com/rails/rails/blob/5-0-stable/activerecord/lib/active_record/relation.rb#L25
-        ActiveRecord::Relation.new(self, table, self.predicate_builder)
+        ActiveRecord::Relation.new(self, table, predicate_builder)
       else
         # https://github.com/rails/rails/blob/4-2-stable/activerecord/lib/active_record/relation.rb#L25
         # https://github.com/rails/rails/blob/5-2-stable/activerecord/lib/active_record/relation.rb#L25

@@ -161,7 +161,7 @@ module Partitioned
       #
       # Create a single child table.
       #
-      def create_partition_table(*partition_key_values) # rubocop:disable Layout/MethodLength
+      def create_partition_table(*partition_key_values) # rubocop:disable Metrics/MethodLength
         inherits =
           if ActiveRecord::VERSION::MAJOR < 5
             'INHERITS'

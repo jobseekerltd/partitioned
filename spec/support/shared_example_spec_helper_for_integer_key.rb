@@ -28,17 +28,17 @@ shared_examples_for "check that basic operations with postgres works correctly f
   context "when try to create many records" do
 
     it "records created" do
-      expect {
+      expect do
+        alex = { name: 'Alex', company_id: 2, integer_field: 4 }
+        aaron = { name: 'Aaron', company_id: 3, integer_field: 2 }
+
         if ActiveRecord::VERSION::MAJOR < 5
-          subject.create_many([
-            { name: 'Alex', company_id: 2, integer_field: 4 },
-            { name: 'Aaron', company_id: 3, integer_field: 2 }
-          ])
+          subject.create_many([alex, aaron])
         else
-          subject.create(name: 'Alex', company_id: 2, integer_field: 4)
-          subject.create(name: 'Aaron', company_id: 3, integer_field: 2)
+          subject.create(alex)
+          subject.create(aaron)
         end
-        }.not_to raise_error
+      end.not_to raise_error
     end
 
   end # when try to create many records
@@ -85,18 +85,18 @@ shared_examples_for "check that basic operations with postgres works correctly f
   context "when try to update a record with update_many functions" do
 
     it "returns updated employee name" do
+      condition = { id: 1, integer_field: 1, company_id: 1 }
+      data = { name: 'Alex' }
+
       if ActiveRecord::VERSION::MAJOR < 5
-        subject.update_many( {
-          { :id => 1, :integer_field => 1, :company_id => 1 } => {
-              :name => 'Alex'
-            }
-        } )
+        subject.update_many({ condition => data })
       else
         subject
-          .where(id: 1, integer_field: 1, company_id: 1)
-          .update_all(name: 'Alex')
+          .where(condition)
+          .update_all(data)
       end
-      expect(subject.find(1).name).to eq("Alex")
+
+      expect(subject.find(1).name).to eq('Alex')
     end
 
     it "returns updated employee name" do
@@ -104,7 +104,7 @@ shared_examples_for "check that basic operations with postgres works correctly f
         id: 1,
         integer_field: 1,
         company_id: 1,
-        name: 'Pit',
+        name: 'Pit'
       }
 
       if ActiveRecord::VERSION::MAJOR < 5
@@ -134,15 +134,15 @@ shared_examples_for "check that basic operations with postgres works correctly f
   context "when try to create new record outside the range of partitions" do
 
     it "raises ActiveRecord::StatementInvalid" do
-      expect {
+      expect do
         data = { name: 'Mark', company_id: 13, integer_field: 5 }
 
         if ActiveRecord::VERSION::MAJOR < 5
-          subject.create_many([ data ])
+          subject.create_many([data])
         else
           subject.create(data)
         end
-      }.to raise_error(ActiveRecord::StatementInvalid)
+      end.to raise_error(ActiveRecord::StatementInvalid)
     end
 
   end # when try to create new record outside the range of partitions

@@ -177,12 +177,18 @@ module ActiveRecord
       # ****** BEGIN PARTITIONED PATCH ******
       if @klass.respond_to?(:dynamic_arel_table)
         using_arel_table = @klass.dynamic_arel_table(Hash[*values.inject([]) { |result, (k, v)| result += [k.name, v] }])
-        if ActiveRecord::VERSION::MAJOR < 5
-          relation = scope.where(using_arel_table[@klass.primary_key].eq(id_was || id))
-        else
-          # Arel performing automatic type casting is deprecated, and will be removed in Arel 8.0. 
-          relation = scope.where(using_arel_table[@klass.primary_key].eq(Arel::Nodes::Quoted.new(id_was || id)))
+
+        quoted_id = id_was || id
+
+        # Arel performing automatic type casting is deprecated, and will be
+        # removed in Arel 8.0.
+        if ActiveRecord::VERSION::MAJOR >= 5
+          quoted_id = Arel::Nodes::Quoted.new(quoted_id)
         end
+
+        condition = using_arel_table[@klass.primary_key].eq(quoted_id)
+        relation = scope.where(condition)
+
         bvs = binds + relation.bind_values
         um = relation
           .arel
