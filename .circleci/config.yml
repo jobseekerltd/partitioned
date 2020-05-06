@@ -30,6 +30,9 @@ commands:
       - run:
           name: Simulate building the gem
           command: gem build *.gemspec
+      - run:
+          name: Run tests
+          command: bundle exec rspec
 
 jobs:
   rails4_rspec:
