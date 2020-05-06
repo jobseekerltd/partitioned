@@ -1,7 +1,7 @@
 PATH
   remote: ..
   specs:
-    partitioned (3.0.0.jora.pre.pre1)
+    partitioned (3.0.0.jora.pre.2)
       activerecord (>= 4.2.10)
       activerecord-redshift-adapter
       bulk_data_methods
@@ -155,6 +155,7 @@ DEPENDENCIES
   partitioned!
   pg (~> 1.2.0)
   rails (~> 5.0.0)
+  rake
   rspec-rails (~> 4.0.0)
 
 BUNDLED WITH
