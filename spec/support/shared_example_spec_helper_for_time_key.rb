@@ -30,23 +30,17 @@ shared_examples_for "check that basic operations with postgres works correctly f
   context "when try to create many records" do
 
     it "records created" do
-      if ActiveRecord::VERSION::MAJOR < 5
-        expect {
-          subject.create_many([
-           { name: 'Alex', company_id: 2, created_at: DATE_NOW + 1 },
-           { name: 'Aaron', company_id: 3, created_at: DATE_NOW + 1 }
-          ])
-        }.not_to raise_error
-      else
-        # The #create_many method is provided by the `bulk_data_methods` gem,
-        # which isn't compatible with Rails 4+. It doesn't seem to be used in
-        # Jora, so tests related to #create_many are emulated with multiple
-        # #create calls.
-        expect {
-          subject.create(name: 'Alex', company_id: 2, created_at: DATE_NOW + 1)
-          subject.create(name: 'Aaron', company_id: 3, created_at: DATE_NOW + 1)
-        }.not_to raise_error
-      end
+      alex = { name: 'Alex', company_id: 2, created_at: DATE_NOW + 1 }
+      aaron = { name: 'Aaron', company_id: 3, created_at: DATE_NOW + 1 }
+
+      expect do
+        if ActiveRecord::VERSION::MAJOR < 5
+          subject.create_many([alex, aaron])
+        else
+          subject.create(alex)
+          subject.create(aaron)
+        end
+      end.not_to raise_error
     end
 
   end # when try to create many records
@@ -105,24 +99,20 @@ shared_examples_for "check that basic operations with postgres works correctly f
   context "when try to update a record with update_many functions" do
 
     it "returns updated employee name" do
+      condition = { id: 1 }
+      data = {
+        name: 'Alex',
+        company_id: 3,
+        created_at: DATE_NOW
+      }
+
       if ActiveRecord::VERSION::MAJOR < 5
-        subject.update_many({
-          {
-            id: 1
-          } => {
-            name: 'Alex',
-            company_id: 3,
-            created_at: DATE_NOW
-          }
-        })
+
+        subject.update_many({ condition => data })
       else
         subject
-          .where(id: 1)
-          .update_all(
-            name: 'Alex',
-            company_id: 3,
-            created_at: DATE_NOW
-          )
+          .where(condition)
+          .update_all(data)
       end
 
       expect(subject.find(1).name).to eq("Alex")
@@ -130,9 +120,9 @@ shared_examples_for "check that basic operations with postgres works correctly f
 
     it "returns updated employee name" do
       data = {
-         id: 1,
-         name: 'Pit',
-         created_at: DATE_NOW
+        id: 1,
+        name: 'Pit',
+        created_at: DATE_NOW
       }
 
       if ActiveRecord::VERSION::MAJOR < 5
@@ -163,15 +153,15 @@ shared_examples_for "check that basic operations with postgres works correctly f
   context "when try to create new record outside the range of partitions" do
 
     it "raises ActiveRecord::StatementInvalid" do
-      if ActiveRecord::VERSION::MAJOR < 5
-        expect {
-          subject.create_many([{ created_at: DATE_NOW - 1.year, company_id: 1 }])
-        }.to raise_error(ActiveRecord::StatementInvalid)
-      else
-        expect {
-          subject.create(created_at: DATE_NOW - 1.year, company_id: 1)
-        }.to raise_error(ActiveRecord::StatementInvalid)
-      end
+      expect do
+        data = { created_at: DATE_NOW - 1.year, company_id: 1 }
+
+        if ActiveRecord::VERSION::MAJOR < 5
+          subject.create_many([data])
+        else
+          subject.create(data)
+        end
+      end.to raise_error(ActiveRecord::StatementInvalid)
     end
 
   end # when try to create new record outside the range of partitions
