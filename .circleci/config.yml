@@ -34,9 +34,9 @@ commands:
           command: gem build *.gemspec
 
 jobs:
-  ruby_2_5:
+  ruby_2_4:
     docker:
-      - image: circleci/ruby:2.5
+      - image: circleci/ruby:2.4
       - image: circleci/postgres:9.5-alpine
         environment:
           POSTGRES_USER: postgres
@@ -71,7 +71,7 @@ workflows:
   version: 2
   rspecs:
     jobs:
-      - ruby_2_5
+      - ruby_2_4
       - lint:
           context: org-global
           filters:
@@ -80,6 +80,6 @@ workflows:
       - publish_gem:
           context: org-global
           requires:
-            - ruby_2_5
+            - ruby_2_4
           filters:
             branches: { only: master }
