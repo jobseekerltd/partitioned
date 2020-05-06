@@ -33,9 +33,9 @@ commands:
           command: gem build *.gemspec
 
 jobs:
-  rails4_rspec: &rspec
+  rails4_rspec:
     docker:
-      - image: circleci/ruby:2.5
+      - image: circleci/ruby:2.4
         environment:
           POSTGRES_PORT: 5432
       - image: circleci/postgres:9.5-alpine
@@ -50,7 +50,15 @@ jobs:
           command: bundle exec appraisal rails-4 rspec
 
   rails5_rspec:
-    <<: *rspec
+    docker:
+      - image: circleci/ruby:2.4
+        environment:
+          POSTGRES_PORT: 5432
+      - image: circleci/postgres:9.5-alpine
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: part_production
+          POSTGRES_PASSWORD: postgres
     steps:
       - setup
       - run:
