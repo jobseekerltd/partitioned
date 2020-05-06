@@ -9,7 +9,7 @@ executors:
           password: $DOCKER_PASS
 
 commands:
-  rspec:
+  setup:
     steps:
       - checkout
       - run:
@@ -29,17 +29,11 @@ commands:
             createdb -U postgres -h localhost part_test
             psql -U postgres -h localhost -d part_test < support/docker-entrypoint-initdb.d/migrations.sql
       - run:
-          name: Run tests (rails-4)
-          command: bundle exec appraisal rails-4 rspec
-      - run:
-          name: Run tests (rails-5)
-          command: bundle exec appraisal rails-5 rspec
-      - run:
           name: Simulate building the gem
           command: gem build *.gemspec
 
 jobs:
-  ruby_2_5:
+  rails4_rspec: &rspec
     docker:
       - image: circleci/ruby:2.5
         environment:
@@ -50,7 +44,18 @@ jobs:
           POSTGRES_DB: part_production
           POSTGRES_PASSWORD: postgres
     steps:
-      - rspec
+      - setup
+      - run:
+          name: Run tests (rails-4)
+          command: bundle exec appraisal rails-4 rspec
+
+  rails5_rspec:
+    <<: *rspec
+    steps:
+      - setup
+      - run:
+          name: Run tests (rails-5)
+          command: bundle exec appraisal rails-5 rspec
 
   lint:
     executor: rubocop
@@ -78,7 +83,8 @@ workflows:
   version: 2
   rspecs:
     jobs:
-      - ruby_2_5
+      - rails4_rspec
+      - rails5_rspec
       - lint:
           context: org-global
           filters:
@@ -87,6 +93,7 @@ workflows:
       - publish_gem:
           context: org-global
           requires:
-            - ruby_2_5
+            - rails4_rspec
+            - rails5_rspec
           filters:
             branches: { only: master }
