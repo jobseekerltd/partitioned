@@ -28,10 +28,17 @@ shared_examples_for "check that basic operations with postgres works correctly f
   context "when try to create many records" do
 
     it "records created" do
-      expect { subject.create_many([
-                                     { :name => 'Alex', :company_id => 2, :integer_field => 4 },
-                                     { :name => 'Aaron', :company_id => 3, :integer_field => 2 }])
-      }.not_to raise_error
+      expect {
+        if ActiveRecord::VERSION::MAJOR < 5
+          subject.create_many([
+            { name: 'Alex', company_id: 2, integer_field: 4 },
+            { name: 'Aaron', company_id: 3, integer_field: 2 }
+          ])
+        else
+          subject.create(name: 'Alex', company_id: 2, integer_field: 4)
+          subject.create(name: 'Aaron', company_id: 3, integer_field: 2)
+        end
+        }.not_to raise_error
     end
 
   end # when try to create many records
@@ -78,27 +85,38 @@ shared_examples_for "check that basic operations with postgres works correctly f
   context "when try to update a record with update_many functions" do
 
     it "returns updated employee name" do
-      subject.update_many( {
-        { :id => 1, :integer_field => 1, :company_id => 1 } => {
-            :name => 'Alex'
-          }
-      } )
+      if ActiveRecord::VERSION::MAJOR < 5
+        subject.update_many( {
+          { :id => 1, :integer_field => 1, :company_id => 1 } => {
+              :name => 'Alex'
+            }
+        } )
+      else
+        subject
+          .where(id: 1, integer_field: 1, company_id: 1)
+          .update_all(name: 'Alex')
+      end
       expect(subject.find(1).name).to eq("Alex")
     end
 
     it "returns updated employee name" do
-      rows = [{
-         :id => 1,
-         :integer_field => 1,
-         :company_id => 1,
-         :name => 'Pit',
-      }]
-
-      options = {
-        :set_array => '"name = datatable.name"',
-        :where => '"#{table_name}.id = datatable.id"'
+      data = {
+        id: 1,
+        integer_field: 1,
+        company_id: 1,
+        name: 'Pit',
       }
-      subject.update_many(rows, options)
+
+      if ActiveRecord::VERSION::MAJOR < 5
+        subject.update_many(
+          [data],
+          set_array: '"name = datatable.name"',
+          where: "\"\#{table_name}.id = datatable.id\""
+        )
+      else
+        subject.update(1, data)
+      end
+
       expect(subject.find(1).name).to eq("Pit")
     end
 
@@ -116,7 +134,14 @@ shared_examples_for "check that basic operations with postgres works correctly f
   context "when try to create new record outside the range of partitions" do
 
     it "raises ActiveRecord::StatementInvalid" do
-      expect { subject.create_many([{ :name => 'Mark', :company_id => 13, :integer_field => 5 } ])
+      expect {
+        data = { name: 'Mark', company_id: 13, integer_field: 5 }
+
+        if ActiveRecord::VERSION::MAJOR < 5
+          subject.create_many([ data ])
+        else
+          subject.create(data)
+        end
       }.to raise_error(ActiveRecord::StatementInvalid)
     end
 

@@ -43,8 +43,8 @@ shared_examples_for "check that basic operations with postgres works correctly f
         # Jora, so tests related to #create_many are emulated with multiple
         # #create calls.
         expect {
-          subject.create({ :name => 'Alex', :company_id => 2, :created_at => DATE_NOW + 1 })
-          subject.create({ :name => 'Aaron', :company_id => 3, :created_at => DATE_NOW + 1 })
+          subject.create(name: 'Alex', company_id: 2, created_at: DATE_NOW + 1)
+          subject.create(name: 'Aaron', company_id: 3, created_at: DATE_NOW + 1)
         }.not_to raise_error
       end
     end
@@ -105,28 +105,47 @@ shared_examples_for "check that basic operations with postgres works correctly f
   context "when try to update a record with update_many functions" do
 
     it "returns updated employee name" do
-      subject.update_many( {
-        { :id => 1 } => {
-            :name => 'Alex',
-            :company_id => 3,
-            :created_at => DATE_NOW
+      if ActiveRecord::VERSION::MAJOR < 5
+        subject.update_many({
+          {
+            id: 1
+          } => {
+            name: 'Alex',
+            company_id: 3,
+            created_at: DATE_NOW
           }
-      } )
+        })
+      else
+        subject
+          .where(id: 1)
+          .update_all(
+            name: 'Alex',
+            company_id: 3,
+            created_at: DATE_NOW
+          )
+      end
+
       expect(subject.find(1).name).to eq("Alex")
     end
 
     it "returns updated employee name" do
-      rows = [{
-         :id => 1,
-         :name => 'Pit',
-         :created_at => DATE_NOW
-      }]
-
-      options = {
-        :set_array => '"name = datatable.name"',
-        :where => '"#{table_name}.id = datatable.id"'
+      data = {
+         id: 1,
+         name: 'Pit',
+         created_at: DATE_NOW
       }
-      subject.update_many(rows, options)
+
+      if ActiveRecord::VERSION::MAJOR < 5
+        # https://github.com/fiksu/bulk_data_methods/blob/master/README.md
+        subject.update_many(
+          [data],
+          set_array: '"name = datatable.name"',
+          where: "\"\#{table_name}.id = datatable.id\""
+        )
+      else
+        subject.update(1, data)
+      end
+
       expect(subject.find(1).name).to eq("Pit")
     end
 
