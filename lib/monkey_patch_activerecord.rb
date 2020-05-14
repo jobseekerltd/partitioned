@@ -56,7 +56,13 @@ module ActiveRecord
       end
       # ****** END PARTITIONED PATCH ******
 
-      attributes_values = arel_attributes_with_values_for_create(attribute_names)
+      if ActiveRecord::VERSION::MAJOR < 5
+        # https://github.com/rails/rails/blob/e9d6b85f3e834ceea2aeabe4cbaa96a7c73eb896/activerecord/lib/active_record/persistence.rb#L522
+        attributes_values = arel_attributes_with_values_for_create(attribute_names)
+      else
+        # https://github.com/rails/rails/blob/299fe07b4e9585f6405a005c7beefef64bc32ca9/activerecord/lib/active_record/persistence.rb#L732
+        attributes_values = attributes_with_values_for_create(attribute_names)
+      end
 
       new_id = self.class.unscoped.insert attributes_values
       self.id ||= new_id if self.class.primary_key
@@ -65,9 +71,17 @@ module ActiveRecord
       id
     end
 
+    def _update_record(attribute_names = nil, &blk)
+      if ActiveRecord::VERSION::MAJOR < 5
+        _update_record_rails4(attribute_names)
+      else
+        _update_record_rails5(attribute_names, &blk)
+      end
+    end
+
     # Updates the associated record with values matching those of the instance attributes.
     # Returns the number of affected rows.
-    def _update_record(attribute_names = self.attribute_names)
+    def _update_record_rails4(attribute_names = self.attribute_names)
       # ****** BEGIN PARTITIONED PATCH ******
       # NOTE(hofer): This patch ensures the columns the table is
       # partitioned on are passed along to the update code so that the
@@ -78,12 +92,38 @@ module ActiveRecord
         attribute_names.uniq!
       end
       # ****** END PARTITIONED PATCH ******
+
       attributes_values = arel_attributes_with_values_for_update(attribute_names)
+
       if attributes_values.empty?
         0
       else
         self.class.unscoped._update_record attributes_values, id, id_was
       end
+    end
+
+    def _update_record_rails5(attribute_names = self.attribute_names)
+      attribute_names &= self.class.column_names
+      attribute_names = attributes_for_update(attribute_names)
+
+      # ****** BEGIN PARTITIONED PATCH ******
+      if self.class.respond_to?(:partition_keys)
+        attribute_names.concat self.class.partition_keys.map(&:to_s)
+        attribute_names.uniq!
+      end
+      # ****** END PARTITIONED PATCH ******
+
+      if attribute_names.empty?
+        affected_rows = 0
+        @_trigger_update_callback = true
+      else
+        affected_rows = _update_row(attribute_names)
+        @_trigger_update_callback = affected_rows == 1
+      end
+
+      yield(self) if block_given?
+
+      affected_rows
     end
 
   end # module Persistence
