@@ -56,12 +56,12 @@ module ActiveRecord
       end
       # ****** END PARTITIONED PATCH ******
 
-      if ActiveRecord::VERSION::MAJOR < 5
-        # https://github.com/rails/rails/blob/e9d6b85f3e834ceea2aeabe4cbaa96a7c73eb896/activerecord/lib/active_record/persistence.rb#L522
-        attributes_values = arel_attributes_with_values_for_create(attribute_names)
-      else
+      if Partitioned::Support.rails_5_2_or_above?
         # https://github.com/rails/rails/blob/299fe07b4e9585f6405a005c7beefef64bc32ca9/activerecord/lib/active_record/persistence.rb#L732
         attributes_values = attributes_with_values_for_create(attribute_names)
+      else
+        # https://github.com/rails/rails/blob/e9d6b85f3e834ceea2aeabe4cbaa96a7c73eb896/activerecord/lib/active_record/persistence.rb#L522
+        attributes_values = arel_attributes_with_values_for_create(attribute_names)
       end
 
       new_id = self.class.unscoped.insert attributes_values
@@ -72,10 +72,10 @@ module ActiveRecord
     end
 
     def _update_record(attribute_names = nil, &blk)
-      if ActiveRecord::VERSION::MAJOR < 5
-        _update_record_rails4(attribute_names)
+      if Partitioned::Support.rails_5_2_or_above?
+        _update_record_rails5_2(attribute_names, &blk)
       else
-        _update_record_rails5(attribute_names, &blk)
+        _update_record_rails4(attribute_names)
       end
     end
 
@@ -102,7 +102,7 @@ module ActiveRecord
       end
     end
 
-    def _update_record_rails5(attribute_names = self.attribute_names)
+    def _update_record_rails5_2(attribute_names = self.attribute_names)
       attribute_names &= self.class.column_names
       attribute_names = attributes_for_update(attribute_names)
 
@@ -222,7 +222,7 @@ module ActiveRecord
 
         # Arel performing automatic type casting is deprecated, and will be
         # removed in Arel 8.0.
-        if ActiveRecord::VERSION::MAJOR >= 5
+        if Partitioned::Support.rails_5_or_above?
           quoted_id = Arel::Nodes::Quoted.new(quoted_id)
         end
 
