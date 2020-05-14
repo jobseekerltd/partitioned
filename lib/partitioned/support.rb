@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 module Partitioned
+  # Helpers for checking Rails/ActiveRecord versions
   module Support
     module_function
 

@@ -56,13 +56,14 @@ module ActiveRecord
       end
       # ****** END PARTITIONED PATCH ******
 
-      if Partitioned::Support.rails_5_2_or_above?
-        # https://github.com/rails/rails/blob/299fe07b4e9585f6405a005c7beefef64bc32ca9/activerecord/lib/active_record/persistence.rb#L732
-        attributes_values = attributes_with_values_for_create(attribute_names)
-      else
-        # https://github.com/rails/rails/blob/e9d6b85f3e834ceea2aeabe4cbaa96a7c73eb896/activerecord/lib/active_record/persistence.rb#L522
-        attributes_values = arel_attributes_with_values_for_create(attribute_names)
-      end
+      attributes_values =
+        if Partitioned::Support.rails_5_2_or_above?
+          # https://github.com/rails/rails/blob/299fe07b4e9585f6405a005c7beefef64bc32ca9/activerecord/lib/active_record/persistence.rb#L732
+          attributes_with_values_for_create(attribute_names)
+        else
+          # https://github.com/rails/rails/blob/e9d6b85f3e834ceea2aeabe4cbaa96a7c73eb896/activerecord/lib/active_record/persistence.rb#L522
+          arel_attributes_with_values_for_create(attribute_names)
+        end
 
       new_id = self.class.unscoped.insert attributes_values
       self.id ||= new_id if self.class.primary_key
@@ -125,8 +126,7 @@ module ActiveRecord
 
       affected_rows
     end
-
-  end # module Persistence
+  end
 
   module QueryMethods
 
@@ -222,9 +222,8 @@ module ActiveRecord
 
         # Arel performing automatic type casting is deprecated, and will be
         # removed in Arel 8.0.
-        if Partitioned::Support.rails_5_or_above?
-          quoted_id = Arel::Nodes::Quoted.new(quoted_id)
-        end
+        quoted_id = Arel::Nodes::Quoted.new(quoted_id) \
+          if Partitioned::Support.rails_5_or_above?
 
         condition = using_arel_table[@klass.primary_key].eq(quoted_id)
         relation = scope.where(condition)
