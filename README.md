@@ -1,3 +1,9 @@
+> ### Archived
+>
+> **June 2020:** [Inara v2.3.0](https://github.com/jobseekerltd/inara/releases/tag/v2.3.0) now doesn't require partitioned. This project is now archived.
+
+---
+
 # Partitioned
 
 > Table-based partitioning for ActiveRecord
